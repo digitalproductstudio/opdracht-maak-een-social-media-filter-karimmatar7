@@ -1,0 +1,146 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mind AR Face Filter</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-face-aframe.prod.js"></script>
+    <link rel="stylesheet" href="./styles/index.css">
+  </head>
+  <body>
+    <div id="welcome-overlay">
+        <div id="welcome-title">🔥 Welcome to the Face Filter App! 🔥</div>
+        <button id="start-btn">Let's Go</button>
+    </div>
+    <!-- Dark Overlay for PayDayModel -->
+    <div id="dark-overlay"></div>
+
+    <a-scene mindar-face embedded vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      <a-camera active="false" position="0 0 0"></a-camera>
+
+      <a-plane id="plague-background" 
+        src="./assets/images/plague.jpg"
+        position="0 0 -3"
+        width="3"
+        height="3"
+        visible="false">
+    </a-plane>
+      <a-entity mindar-face-target="anchorIndex: 1">
+
+        <!-- Models -->
+        <a-gltf-model id="maskModel" src="assets/gltf/mask/scene.gltf" scale="5 6 1" position="0 -11.7 -0.5" visible="true"></a-gltf-model>
+        <a-gltf-model id="killerModel" src="assets/gltf/gas/scene.gltf" scale="0.0022 0.0022 0.0022" position="0 0.2 -0.3" rotation="0 0 0" visible="false"></a-gltf-model>
+        <a-gltf-model id="SquidModel" src="assets/gltf/squid/scene.gltf" scale="0.19 0.19 0.19" position="0 -0.1 0" rotation="0 90 0" visible="false"></a-gltf-model>
+        <a-gltf-model id="PlagueModel" src="assets/gltf/plague_doctor_mask/scene.gltf" scale="0.6 0.6 0.6" position="0 -0.5 -0.14" rotation="0 0 0" visible="false"></a-gltf-model>
+        <a-gltf-model id="PayDayModel" src="assets/gltf/payday_dallas_mask/scene.gltf" scale="0.08 0.08 0.08" position="0 0 -0.5" rotation="90 0 0" visible="false"></a-gltf-model>
+      </a-entity>
+      <a-entity mindar-face-debug></a-entity>
+    </a-scene>
+<audio id="squidSong" src="./assets/mp3/Mingle Game Song Round and Round Lyric Video  Squid Game_ Season 2  Netflix.mp3" loop>
+Your browser doesn't support MP3 audio
+</audio>
+    <!-- Floating UI Buttons -->
+    <div class="controls">
+        <button id="change-model-btn" class="btn"></button>
+        <button id="screenshot-btn" class="btn"></button>
+        <button id="disable-filter-btn" class="btn"></button>
+    </div>
+
+    <script>
+        let currentModelIndex = 0;
+        const models = ["maskModel", "killerModel", "SquidModel", "PlagueModel", "PayDayModel"];
+        const squidSong = document.getElementById("squidSong");
+
+        document.getElementById("change-model-btn").addEventListener("click", function () {
+            models.forEach(id => {
+                let model = document.getElementById(id);
+                model.setAttribute("visible", "false");
+            });
+
+            // Move to next model
+            currentModelIndex = (currentModelIndex + 1) % models.length;
+            let activeModel = models[currentModelIndex];
+            let modelToShow = document.getElementById(activeModel);
+
+            // Show new model
+            modelToShow.setAttribute("visible", "true");
+
+            // Darken background when PayDayModel is active
+            if (activeModel === "PayDayModel") {
+                document.getElementById("dark-overlay").style.background = "rgba(0, 0, 0, 0.6)";
+            } else {
+                document.getElementById("dark-overlay").style.background = "rgba(0, 0, 0, 0)";
+            }
+            
+            if (activeModel === "SquidModel") {
+                squidSong.play();
+            } else {
+                squidSong.pause();
+                squidSong.currentTime = 0; 
+
+            }
+
+        });
+
+        document.getElementById("screenshot-btn").addEventListener("click", function () {
+            let scene = document.querySelector("a-scene");
+            let video = document.querySelector("video");
+            let canvas = document.createElement("canvas");
+            let ctx = canvas.getContext("2d");
+
+            // Set canvas size to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw the webcam feed first (flip it to match AR scene)
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            // Ensure the WebGL buffer is preserved
+            scene.renderer.preserveDrawingBuffer = true;
+
+            // Sync rendering to avoid misalignment
+            requestAnimationFrame(() => {
+                let arCanvas = scene.renderer.domElement;
+                ctx.drawImage(arCanvas, 0, 0, canvas.width, canvas.height);
+                
+                let now = new Date();
+let timestamp = now.toLocaleString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+});
+
+                // Download the final merged image
+                let imgData = canvas.toDataURL("image/png");
+                let downloadLink = document.createElement("a");
+                downloadLink.href = imgData;
+                downloadLink.download = `AR_Snapshot_${timestamp}.png`;
+                downloadLink.click();
+            });
+        });
+        // Disable Filters Button
+        document.getElementById("disable-filter-btn").addEventListener("click", function () {
+            models.forEach(id => document.getElementById(id).setAttribute("visible", "false"));
+            document.getElementById("dark-overlay").style.background = "rgba(0, 0, 0, 0)";
+            squidSong.pause();
+        });
+
+        document.getElementById("start-btn").addEventListener("click", function () {
+    document.getElementById("welcome-overlay").style.opacity = "0";
+    setTimeout(() => {
+        document.getElementById("welcome-overlay").style.display = "none";
+        document.getElementById("ar-scene").style.display = "block";
+        document.querySelector(".controls").style.display = "flex";
+    }, 500);
+});
+
+    </script>
+    
+  </body>
+</html>

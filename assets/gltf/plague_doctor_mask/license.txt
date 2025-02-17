@@ -1,0 +1,11 @@
+Model Information:
+* title:	Plague Doctor Mask
+* source:	https://sketchfab.com/3d-models/plague-doctor-mask-d5a913dd1c7d4685b160c74584e2e2ab
+* author:	sui (https://sketchfab.com/jjosh.wwashington)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Plague Doctor Mask" (https://sketchfab.com/3d-models/plague-doctor-mask-d5a913dd1c7d4685b160c74584e2e2ab) by sui (https://sketchfab.com/jjosh.wwashington) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
